@@ -1,0 +1,27 @@
+version: '3.8'
+
+services:
+
+  web:
+    build: ./
+    command: uvicorn app.main:app --reload --host 0.0.0.0 --port 8000
+    volumes:
+      - ./:/usr/src/app
+    ports:
+      - 8000:8000
+    environment:
+      - APP_NAME=City Coordinates
+      - APP_VERSION=0.1.0
+      - DATABASE_URL=postgresql+asyncpg://postgres:postgres@db:5432/cities_info
+    depends_on:
+      - db
+
+  db:
+    image: postgis/postgis:15-3.4
+    restart: always
+    ports:
+      - "5432:5432"
+    environment:
+      - POSTGRES_USER=postgres
+      - POSTGRES_PASSWORD=postgres
+      - POSTGRES_DB=cities_info
