@@ -31,8 +31,8 @@ async def get_two_closest_cities(
 
 
 @router.get(
-    '/{city_name}',
-    response_model=CityDB,
+    '/search',
+    response_model=list[CityDB],
     status_code=status.HTTP_200_OK
 )
 async def get_city(
@@ -40,6 +40,19 @@ async def get_city(
     session: AsyncSession = Depends(get_async_session)
 ):
     city = await crud_city.get_city_by_name(city_name, session)
+    return city
+
+
+@router.get(
+    '/{city_id}',
+    response_model=CityDB,
+    status_code=status.HTTP_200_OK
+)
+async def get_city_by_id(
+    city_id: int,
+    session: AsyncSession = Depends(get_async_session)
+):
+    city = await crud_city.get_city_by_id(city_id, session)
     if city is None:
         raise HTTPException(
             status_code=status.HTTP_422_UNPROCESSABLE_ENTITY,
@@ -68,13 +81,15 @@ async def add_city(
 
 
 @router.delete(
-    '/{city_pk}',
+    '/{city_id}',
     status_code=status.HTTP_200_OK
 )
 async def remove_city(
-    city_pk: int,
+    city_id: int,
     session: AsyncSession = Depends(get_async_session)
 ):
-    db_obj = await crud_city.get(city_pk, session)
+    db_obj = await crud_city.get(city_id, session)
+    if db_obj is None:
+        return None
     await crud_city.remove(db_obj, session)
     return
