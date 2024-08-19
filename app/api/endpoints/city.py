@@ -4,7 +4,7 @@ from fastapi.routing import APIRouter
 from sqlalchemy.ext.asyncio import AsyncSession
 
 from app.api.utils import get_city_coordinates
-from app.api.validators import validate_city_already_exists
+from app.api.validators import validate_city_already_exists, validate_city_name
 from app.core.db import get_async_session
 from app.crud.city import crud_city
 from app.schemas.city import CityCreate, CityDB
@@ -56,7 +56,7 @@ async def get_city_by_id(
     if city is None:
         raise HTTPException(
             status_code=status.HTTP_422_UNPROCESSABLE_ENTITY,
-            detail='Город с таким именем отсутствует в базе данных'
+            detail='Город с таким id отсутствует в базе данных'
         )
     return city
 
@@ -70,6 +70,7 @@ async def add_city(
     city_in: CityCreate,
     session: AsyncSession = Depends(get_async_session)
 ):
+    validate_city_name(city_in.name)
     WKT_coords, longitude, latitude = get_city_coordinates(city_in)
     city_in.coordinates = WKT_coords
     await validate_city_already_exists(WKT_coords, session)

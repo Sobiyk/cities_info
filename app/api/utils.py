@@ -18,6 +18,11 @@ def get_city_coordinates(city_in: CityCreate):
             status_code=status.HTTP_400_BAD_REQUEST,
             detail='Что-то пошло не так'
         )
+    if city_data_response.status_code != status.HTTP_200_OK:
+        raise HTTPException(
+            status_code=status.HTTP_400_BAD_REQUEST,
+            detail='Что-то пошло не так'
+        )
     city_data = city_data_response.json()
     latitude = str(city_data[0]['lat'])
     longitude = str(city_data[0]['lon'])
